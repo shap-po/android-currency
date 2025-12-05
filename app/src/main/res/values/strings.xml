@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">currency</string>
+    <string name="app_name">Currency</string>
     <string name="header_from">From</string>
     <string name="header_to">To</string>
     <string name="header_buy">Buy</string>
