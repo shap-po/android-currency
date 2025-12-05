@@ -26,6 +26,15 @@ class MainViewModel : ViewModel() {
 
     private var job: Job? = null
 
+    init {
+        val date = java.util.Calendar.getInstance()
+        var year = date.get(java.util.Calendar.YEAR)
+        var month = date.get(java.util.Calendar.MONTH) + 1
+        var day = date.get(java.util.Calendar.DAY_OF_MONTH)
+
+        fetchData(year, month, day)
+    }
+
     fun fetchData(year: Int, month: Int, day: Int) {
         job?.cancel() // cancel previous job if any
 
