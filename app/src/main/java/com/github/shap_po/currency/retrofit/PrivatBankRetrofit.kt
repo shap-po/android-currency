@@ -4,7 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object PrivatBankRetrofit {
-    private val BASE_URL = "https://api.privatbank.ua/p24api/"
+    private const val BASE_URL = "https://api.privatbank.ua/p24api/"
 
     fun getService(): PrivatBankService {
         val retrofit = Retrofit.Builder()
