@@ -17,12 +17,13 @@ class MainActivity : AppCompatActivity() {
         binding.calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
             viewModel.setDate(year, month, dayOfMonth)
         }
-        viewModel.date.observe(this){
-            binding.textView.text = viewModel.getDateString()
+        viewModel.data.observe(this) {
+            binding.textView.text = viewModel.data.value?.getDateString()
+            binding.textView.append(viewModel.data.value?.exchangeRates.toString())
         }
     }
 
-    companion object{
+    companion object {
         const val TAG = "XCURR"
     }
 }
