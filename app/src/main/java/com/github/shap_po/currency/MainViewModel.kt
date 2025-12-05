@@ -9,8 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.github.shap_po.currency.MainActivity.Companion.TAG
 import com.github.shap_po.currency.retrofit.ExchangeRatesResponce
 import com.github.shap_po.currency.retrofit.PrivatBankRetrofit
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 sealed class Status {
     data class SUCCESS(val result: ExchangeRatesResponce) : Status()
@@ -24,13 +24,15 @@ class MainViewModel : ViewModel() {
     val status: LiveData<Status>
         get() = _status
 
-    fun setDate(year: Int, month: Int, day: Int) {
-        val calendar = Calendar.getInstance()
-        calendar.set(year, month, day)
+    private var job: Job? = null
+
+    fun fetchData(year: Int, month: Int, day: Int) {
+        job?.cancel() // cancel previous job if any
+
         _status.value = Status.LOADING
 
         val dateString = getDateString(year, month, day)
-        viewModelScope.launch {
+        job = viewModelScope.launch {
             val result = privatBankService.getExchangeRates(dateString)
             if (result == null) {
                 Log.e(TAG, "Failed to fetch exchange rates for $dateString")
