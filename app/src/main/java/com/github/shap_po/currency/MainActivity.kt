@@ -17,7 +17,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        binding.calendarView.maxDate = System.currentTimeMillis(); // cant know the future
+        binding.calendarView.maxDate = System.currentTimeMillis() // cant know the future
+        binding.calendarView.date = viewModel.selectedDate.value!!
         binding.calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
             viewModel.fetchData(year, month + 1, dayOfMonth)
         }

@@ -23,6 +23,9 @@ class MainViewModel : ViewModel() {
     private val _status = MutableLiveData<Status>(Status.LOADING)
     val status: LiveData<Status>
         get() = _status
+    private val _selectedDate = MutableLiveData(System.currentTimeMillis())
+    val selectedDate: LiveData<Long>
+        get() = _selectedDate
 
     private var job: Job? = null
 
@@ -37,6 +40,11 @@ class MainViewModel : ViewModel() {
 
     fun fetchData(year: Int, month: Int, day: Int) {
         job?.cancel() // cancel previous job if any
+
+        // save selected date
+        _selectedDate.value = java.util.Calendar.getInstance().apply {
+            set(year, month - 1, day)
+        }.timeInMillis
 
         _status.value = Status.LOADING
 
