@@ -17,9 +17,20 @@ class MainActivity : AppCompatActivity() {
         binding.calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
             viewModel.setDate(year, month, dayOfMonth)
         }
-        viewModel.data.observe(this) {
-            binding.textView.text = viewModel.data.value?.getDateString()
-            binding.textView.append(viewModel.data.value?.exchangeRates.toString())
+        viewModel.status.observe(this) {
+            when (it) {
+                Status.LOADING -> {
+                    binding.textView.text = "Loading..."
+                }
+
+                Status.ERROR -> {
+                    binding.textView.text = "Error..."
+                }
+
+                is Status.SUCCESS -> {
+                    binding.textView.append(it.result.toString())
+                }
+            }
         }
     }
 

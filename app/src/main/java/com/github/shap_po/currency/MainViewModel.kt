@@ -7,40 +7,29 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.shap_po.currency.MainActivity.Companion.TAG
-import com.github.shap_po.currency.retrofit.ExchangeRate
+import com.github.shap_po.currency.retrofit.ExchangeRatesResponce
 import com.github.shap_po.currency.retrofit.PrivatBankRetrofit
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-data class Data(val date: Calendar, val exchangeRates: List<ExchangeRate>) {
-    constructor() : this(Calendar.getInstance(), emptyList())
-
-    fun getDateString(): String {
-        val year = date.get(Calendar.YEAR)
-        val month = date.get(Calendar.MONTH) + 1 // months are 0-based
-        val day = date.get(Calendar.DAY_OF_MONTH)
-
-        @SuppressLint("DefaultLocale")
-        return String.format("%02d.%02d.%04d", day, month, year)
-    }
+sealed class Status {
+    data class SUCCESS(val result: ExchangeRatesResponce) : Status()
+    object ERROR : Status()
+    object LOADING : Status()
 }
 
 class MainViewModel : ViewModel() {
     private val privatBankService = PrivatBankRetrofit.getService()
-    private val _data = MutableLiveData(Data())
-    val data: LiveData<Data>
-        get() = _data
+    private val _status = MutableLiveData<Status>(Status.LOADING)
+    val status: LiveData<Status>
+        get() = _status
 
     fun setDate(year: Int, month: Int, day: Int) {
         val calendar = Calendar.getInstance()
         calendar.set(year, month, day)
-        _data.value = Data(calendar, listOf())
-        fetchCurrencyData()
-    }
+        _status.value = Status.LOADING
 
-    fun fetchCurrencyData() {
-        val currentData = _data.value ?: return
-        val dateString = currentData.getDateString()
+        val dateString = getDateString(year, month, day)
         viewModelScope.launch {
             val result = privatBankService.getExchangeRates(dateString)
             if (result == null) {
@@ -49,7 +38,12 @@ class MainViewModel : ViewModel() {
             }
             Log.d(TAG, "Fetched exchange rates for $dateString: $result")
 
-            _data.value = Data(currentData.date, result.exchangeRates)
+            _status.value = Status.SUCCESS(result)
         }
+    }
+
+    @SuppressLint("DefaultLocale")
+    fun getDateString(year: Int, month: Int, day: Int): String {
+        return String.format("%02d.%02d.%04d", day, month, year)
     }
 }
